@@ -249,14 +249,3 @@ def clr1_parse(data: ParseInput):
 
 
 # ---------------- LALR(1) ---------------- #
-@app.post("/lalr1-table")
-def lalr1_table(data: GrammarInput):
-    g, err = validate_and_continue(data.grammar)
-    if err: return err
-
-    g.augment_grammar()
-    lalr = LALR1(g)
-    lalr.build_canonical_collection()
-
-    action, goto, conflicts = lalr.build_parsing_table()
-    return {"action": action, "goto": goto, "conflicts": conflicts}

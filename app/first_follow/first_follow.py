@@ -17,21 +17,35 @@ class FirstFollow:
             for left in self.grammar.productions:
                 for production in self.grammar.productions[left]:
 
+                    add_epsilon = True
+
                     for symbol in production:
-                        # If terminal → add and stop
+
+                        # terminal
                         if symbol in self.grammar.terminals:
                             if symbol not in self.first[left]:
                                 self.first[left].add(symbol)
                                 changed = True
+                            add_epsilon = False
                             break
 
-                        # If non-terminal → add FIRST(symbol)
+                        # non-terminal
                         else:
                             before = len(self.first[left])
-                            self.first[left].update(self.first[symbol])
+
+                            self.first[left].update(self.first[symbol] - {'ε'})
+
                             if len(self.first[left]) > before:
                                 changed = True
-                            break
+
+                            if 'ε' not in self.first[symbol]:
+                                add_epsilon = False
+                                break
+
+                    if add_epsilon:
+                        if 'ε' not in self.first[left]:
+                            self.first[left].add('ε')
+                            changed = True
 
         return self.first
 
@@ -53,26 +67,32 @@ class FirstFollow:
                         symbol = production[i]
 
                         if symbol in self.grammar.non_terminals:
+                            # Compute FIRST of β (everything after symbol)
+                            beta_first = set()
+                            add_follow_later = True  # whether β can produce ε
 
-                            # Case 1: Symbol followed by something
-                            if i + 1 < len(production):
-                                next_symbol = production[i + 1]
+                            for j in range(i + 1, len(production)):
+                                next_sym = production[j]
 
-                                if next_symbol in self.grammar.terminals:
-                                    if next_symbol not in self.follow[symbol]:
-                                        self.follow[symbol].add(next_symbol)
-                                        changed = True
-                                else:
-                                    before = len(self.follow[symbol])
-                                    self.follow[symbol].update(self.first[next_symbol])
-                                    if len(self.follow[symbol]) > before:
-                                        changed = True
+                                if next_sym in self.grammar.terminals:
+                                    beta_first.add(next_sym)
+                                    add_follow_later = False
+                                    break
+                                else:  # non-terminal
+                                    beta_first.update(self.first[next_sym] - {'ε'})
+                                    if 'ε' not in self.first[next_sym]:
+                                        add_follow_later = False
+                                        break
 
-                            # Case 2: Symbol at end
-                            else:
-                                before = len(self.follow[symbol])
+                            # Add FIRST(β) - {ε} to FOLLOW(symbol)
+                            before = len(self.follow[symbol])
+                            self.follow[symbol].update(beta_first)
+
+                            # If β can produce ε (or β is empty), add FOLLOW(left)
+                            if add_follow_later or i == len(production) - 1:
                                 self.follow[symbol].update(self.follow[left])
-                                if len(self.follow[symbol]) > before:
-                                    changed = True
+
+                            if len(self.follow[symbol]) > before:
+                                changed = True
 
         return self.follow

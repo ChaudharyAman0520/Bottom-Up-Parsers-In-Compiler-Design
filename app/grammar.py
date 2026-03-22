@@ -50,8 +50,8 @@ class Grammar:
 
     def _build_production_list(self):
         for left in self.productions:
-            for prod in self.productions[left]:
-                self.production_list.append((left, prod))
+            for production in self.productions[left]:
+                self.production_list.append((left, production))
 
     def augment_grammar(self):
         augmented_start = self.start_symbol + "'"

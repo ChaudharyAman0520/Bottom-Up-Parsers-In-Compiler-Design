@@ -98,7 +98,12 @@ class LR0:
 
                         if symbol in self.grammar.terminals:
                             if symbol in action[i] and action[i][symbol] != f"s{j}":
-                                conflicts.append((i, symbol))
+                                conflicts.append({
+                                    "state": i,
+                                    "symbol": symbol,
+                                    "existing": action[i][symbol],
+                                    "incoming": f"s{j}"
+                                })
                             action[i][symbol] = f"s{j}"
                         else:
                             goto_table[i][symbol] = j
@@ -112,7 +117,12 @@ class LR0:
 
                         for terminal in self.grammar.terminals.union({'$'}):
                             if terminal in action[i] and action[i][terminal] != f"r{prod_index}":
-                                conflicts.append((i, terminal))
+                                conflicts.append({
+                                    "state": i,
+                                    "symbol": symbol,
+                                    "existing": action[i][symbol],
+                                    "incoming": f"s{j}"
+                                })
                             action[i][terminal] = f"r{prod_index}"
 
         return action, goto_table, conflicts

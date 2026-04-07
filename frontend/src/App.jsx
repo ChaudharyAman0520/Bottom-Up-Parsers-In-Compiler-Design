@@ -66,111 +66,122 @@ function App() {
     }
   };
   return (
-  <div className="app-container">
-    <h1 className="title">LR Parser Visualizer</h1>
+    <div className="app-shell">
+      <div className="app-container">
+        <header className="app-header">
+          <h1 className="title">Bottom-Up Parser Visualizer</h1>
+          <p className="subtitle">
+            Explore LR(0) and SLR(1) states, parsing tables, and step-by-step
+            parsing.
+          </p>
+        </header>
 
-    <div style={{ textAlign: "center" }}>
-      <textarea
-        rows={6}
-        value={grammar}
-        onChange={(e) => setGrammar(e.target.value)}
-        placeholder={`Enter grammar
+        <section className="card control-panel">
+          <div className="panel-header">
+            <h2 className="section-title">Grammar Workspace</h2>
+            <div className="parser-toggle">
+              <button
+                onClick={() => setParserType("lr0")}
+                className={parserType === "lr0" ? "active-btn" : ""}
+              >
+                LR(0)
+              </button>
+              <button
+                onClick={() => setParserType("slr1")}
+                className={parserType === "slr1" ? "active-btn" : ""}
+              >
+                SLR(1)
+              </button>
+            </div>
+          </div>
+
+          <textarea
+            rows={7}
+            value={grammar}
+            onChange={(e) => setGrammar(e.target.value)}
+            placeholder={`Enter grammar
 
 Example:
 S -> L = R | R
 L -> * R | id
 R -> L`}
-      />
-    </div>
+          />
 
-    {/* PARSER SELECT */}
-    <div style={{ textAlign: "center", marginTop: "10px" }}>
-      <button
-        onClick={() => setParserType("lr0")}
-        className={parserType === "lr0" ? "active-btn" : ""}
-      >
-        LR(0)
-      </button>
+          <div className="action-row">
+            <button className="primary-btn" onClick={handleParseGrammar}>
+              Process Grammar
+            </button>
+          </div>
+        </section>
 
-      <button
-        onClick={() => setParserType("slr1")}
-        className={parserType === "slr1" ? "active-btn" : ""}
-        style={{ marginLeft: "10px" }}
-      >
-        SLR(1)
-      </button>
-    </div>
+        <GrammarDisplay grammar={grammar} />
 
-    <div style={{ textAlign: "center", marginTop: "10px" }}>
-      <button onClick={handleParseGrammar}>Process Grammar</button>
-    </div>
+        {/* STATES + TABLE */}
+        <section className="flex-container">
+          <div className="box">
+            <StatesView states={states} />
+          </div>
 
-    <GrammarDisplay grammar={grammar} />
+          <div className="box">
+            <ParsingTable
+              action={action}
+              gotoTable={gotoTable}
+              conflicts={conflicts}
+              parserType={parserType}
+            />
+          </div>
+        </section>
 
-    {/* STATES + TABLE */}
-    <div className="flex-container">
-      <div className="box">
-        <StatesView states={states} />
+        {/* INPUT */}
+        <section className="card parse-input-card">
+          <h2 className="section-title">Parse Input String</h2>
+          <div className="input-row">
+            <input
+              value={inputString}
+              onChange={(e) => setInputString(e.target.value)}
+              placeholder="id = id"
+            />
+            <button className="primary-btn" onClick={handleParseInput}>
+              Parse
+            </button>
+          </div>
+        </section>
+
+        {/* STEPS */}
+        {parseSteps.length > 0 && (
+          <div className="card">
+            <h3 className="section-title">Parsing Steps</h3>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Stack</th>
+                    <th>Input</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parseSteps.map((step, idx) => (
+                    <tr key={idx}>
+                      <td>{step.stack.join(" ")}</td>
+                      <td>{step.input.join(" ")}</td>
+                      <td>{step.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {parseResult && (
+          <div className="result-banner">
+            <span>Result:</span> {parseResult}
+          </div>
+        )}
       </div>
-
-      <div className="box">
-        <ParsingTable
-          action={action}
-          gotoTable={gotoTable}
-          conflicts={conflicts}
-          parserType={parserType}
-        />
-      </div>
     </div>
-
-    {/* INPUT */}
-    <div style={{ marginTop: "30px", textAlign: "center" }}>
-      <h2>Parse Input</h2>
-      <input
-        value={inputString}
-        onChange={(e) => setInputString(e.target.value)}
-        placeholder="id = id"
-      />
-      <button onClick={handleParseInput} style={{ marginLeft: "10px" }}>
-        Parse
-      </button>
-    </div>
-
-    {/* STEPS */}
-    {parseSteps.length > 0 && (
-      <div className="card">
-        <h3 className="section-title">Parsing Steps</h3>
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Stack</th>
-                <th>Input</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {parseSteps.map((step, idx) => (
-                <tr key={idx}>
-                  <td>{step.stack.join(" ")}</td>
-                  <td>{step.input.join(" ")}</td>
-                  <td>{step.action}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    )}
-
-    {parseResult && (
-      <div style={{ textAlign: "center", marginTop: "10px" }}>
-        Result: {parseResult}
-      </div>
-    )}
-  </div>
-);
- 
+  );
 }
 
 export default App;

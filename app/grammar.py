@@ -1,4 +1,3 @@
-# app/grammar.py
 
 class Grammar:
     def __init__(self, grammar_text: str):

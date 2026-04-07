@@ -1,99 +1,196 @@
 /* ---------- GLOBAL ---------- */
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background: #020617;
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 58%);
   color: #e2e8f0;
-  font-family: monospace;
+  font-family: "Inter", "Segoe UI", "Roboto", sans-serif;
 }
 
-/* ---------- MAIN CONTAINER ---------- */
+/* ---------- APP LAYOUT ---------- */
+.app-shell {
+  min-height: 100vh;
+  padding: 28px 16px 48px;
+}
+
 .app-container {
-  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* ---------- TITLE ---------- */
-.title {
+.app-header {
+  margin-bottom: 18px;
   text-align: center;
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #60a5fa;
 }
 
-/* ---------- TEXTAREA ---------- */
-textarea {
-  width: 100%;
-  max-width: 500px;
-  background: #0b1220;
-  color: white;
-  border: 1px solid #374151;
-  padding: 10px;
-  border-radius: 8px;
+.title {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: 0.02em;
+  color: #93c5fd;
 }
 
-/* ---------- BUTTONS ---------- */
-button {
-  background: #1f2937;
-  color: white;
-  border: 1px solid #374151;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #374151;
-}
-
-.active-btn {
-  background: #2563eb;
-  font-weight: bold;
+.subtitle {
+  margin: 10px auto 0;
+  max-width: 700px;
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
 /* ---------- CARDS ---------- */
 .card {
-  background: #111827;
-  border: 1px solid #2d3748;
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 20px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.3);
 }
 
 .section-title {
+  margin: 0 0 14px;
   text-align: center;
-  margin-bottom: 15px;
-  color: #60a5fa;
+  color: #bfdbfe;
 }
 
-/* ---------- LAYOUT ---------- */
-.flex-container {
+/* ---------- FORM ELEMENTS ---------- */
+textarea,
+input {
+  width: 100%;
+  background: #0b1220;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 11px 12px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea {
+  resize: vertical;
+  font-family: "Consolas", "Courier New", monospace;
+  line-height: 1.45;
+}
+
+textarea:focus,
+input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+button {
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #f8fafc;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #334155;
+  transform: translateY(-1px);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-color: #2563eb;
+}
+
+.primary-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+.active-btn {
+  background: #2563eb;
+  border-color: #3b82f6;
+}
+
+/* ---------- CONTROL PANEL ---------- */
+.control-panel {
+  margin-top: 0;
+}
+
+.panel-header {
   display: flex;
-  gap: 20px;
-  margin-top: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-header .section-title {
+  margin: 0;
+  text-align: left;
+}
+
+.parser-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.action-row {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- CONTENT LAYOUT ---------- */
+.flex-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .box {
-  flex: 1;
+  min-width: 0;
+}
+
+.parse-input-card {
+  margin-top: 20px;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
 }
 
 /* ---------- STATES ---------- */
 .states-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
+  gap: 12px;
 }
 
 .state-card {
-  background: #0b1220;
-  border: 1px solid #374151;
+  background: rgba(11, 18, 32, 0.9);
+  border: 1px solid #334155;
   border-radius: 10px;
   padding: 12px;
 }
 
-.state-item {
-  margin: 4px 0;
+.state-card h3 {
+  margin: 0 0 8px;
+  color: #93c5fd;
 }
 
-/* ---------- TABLE ---------- */
+.state-item {
+  margin: 4px 0;
+  color: #cbd5e1;
+  font-family: "Consolas", "Courier New", monospace;
+}
+
+/* ---------- TABLES ---------- */
 .table-container {
   overflow-x: auto;
 }
@@ -101,22 +198,94 @@ button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.92rem;
 }
 
-th, td {
-  border: 1px solid #374151;
-  padding: 6px;
+th,
+td {
+  border: 1px solid #334155;
+  padding: 8px;
   text-align: center;
 }
 
 th {
-  background: #1f2937;
+  background: #1e293b;
+  color: #dbeafe;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(30, 41, 59, 0.34);
+}
+
+.state-cell {
+  font-weight: 700;
+  color: #bfdbfe;
 }
 
 .conflict-cell {
-  background: rgba(255, 0, 0, 0.3);
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.conflict-box {
+  margin-top: 12px;
+  color: #cbd5e1;
 }
 
 .no-conflict {
   color: #22c55e;
+}
+
+/* ---------- GRAMMAR + RESULT ---------- */
+.grammar-box {
+  padding: 10px 12px;
+  background: rgba(11, 18, 32, 0.9);
+  border: 1px solid #334155;
+  border-radius: 10px;
+}
+
+.grammar-line {
+  font-family: "Consolas", "Courier New", monospace;
+  color: #e2e8f0;
+  padding: 2px 0;
+}
+
+.result-banner {
+  margin-top: 12px;
+  border: 1px solid #334155;
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  color: #bfdbfe;
+}
+
+.result-banner span {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px) {
+  .flex-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .panel-header .section-title {
+    text-align: center;
+  }
+
+  .parser-toggle {
+    justify-content: center;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
 }

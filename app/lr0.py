@@ -1,4 +1,3 @@
-# app/lr0.py
 
 class LR0:
     def __init__(self, grammar):

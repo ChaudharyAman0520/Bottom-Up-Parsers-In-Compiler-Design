@@ -1,4 +1,3 @@
-# slr1.py
 
 from .first_follow.first_follow import FirstFollow
 from .lr0 import LR0

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from grammar import Grammar
-from first_follow.first_follow import FirstFollow
-from lr0 import LR0
-from slr1 import SLR1  # ✅ new
+from .grammar import Grammar
+from .first_follow.first_follow import FirstFollow
+from .lr0 import LR0
+from .slr1 import SLR1  # ✅ new
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()

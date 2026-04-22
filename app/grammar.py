@@ -1,8 +1,9 @@
+# grammar.py (Modified)
 
 class Grammar:
     def __init__(self, grammar_text: str):
-        self.productions = {}          # {NonTerminal: [[symbols], ...]}
-        self.production_list = []      # [(left, [symbols]), ...]
+        self.productions = {}          
+        self.production_list = []      
         self.non_terminals = set()
         self.terminals = set()
         self.start_symbol = None
@@ -12,20 +13,21 @@ class Grammar:
         self._build_production_list()
 
     def _parse_grammar(self, grammar_text: str):
-        lines = [
-            line.strip()
-            for line in grammar_text.strip().split("\n")
-            if line.strip()
-        ]
+        lines = [line.strip() for line in grammar_text.strip().split("\n") if line.strip()]
 
-        # Collect non-terminals first
         for line in lines:
             if "->" not in line:
-                raise ValueError(f"Invalid production format: {line}")
+                raise ValueError(f"Invalid production format: {line} [cite: 3]")
+            
             left, _ = line.split("->", 1)
-            self.non_terminals.add(left.strip())
+            left = left.strip()
+            
+            # RECTIFICATION: Ensure LHS is exactly one Non-Terminal
+            if len(left.split()) > 1:
+                raise ValueError(f"LHS '{left}' is invalid. CFG must have exactly one symbol on the left.")
+            
+            self.non_terminals.add(left)
 
-        # Parse productions
         for index, line in enumerate(lines):
             left, right = line.split("->", 1)
             left = left.strip()
@@ -34,18 +36,20 @@ class Grammar:
                 self.start_symbol = left
 
             alternatives = right.split("|")
-            self.productions[left] = []
+            if left not in self.productions:
+                self.productions[left] = []
 
             for alt in alternatives:
                 symbols = alt.strip().split()
-                self.productions[left].append(symbols)
+                # If the line was "A -> ", symbols becomes an empty list (representing ε)
+                self.productions[left].append(symbols if symbols else ['ε'])
 
     def _extract_terminals(self):
         for left in self.productions:
             for production in self.productions[left]:
                 for symbol in production:
-                    if symbol not in self.non_terminals:
-                        self.terminals.add(symbol)
+                    if symbol not in self.non_terminals and symbol != 'ε':
+                        self.terminals.add(symbol) [cite: 6]
 
     def _build_production_list(self):
         for left in self.productions:
@@ -56,8 +60,6 @@ class Grammar:
         augmented_start = self.start_symbol + "'"
         self.productions[augmented_start] = [[self.start_symbol]]
         self.non_terminals.add(augmented_start)
-        self.start_symbol = augmented_start
-
-        # rebuild production list after augmentation
+        self.start_symbol = augmented_start [cite: 7]
         self.production_list = []
         self._build_production_list()

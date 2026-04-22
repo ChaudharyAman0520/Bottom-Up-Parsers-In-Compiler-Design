@@ -1,12 +1,10 @@
-# app/first_follow.py
-
 class FirstFollow:
     def __init__(self, grammar):
         self.grammar = grammar
         self.first = {nt: set() for nt in grammar.non_terminals}
         self.follow = {nt: set() for nt in grammar.non_terminals}
 
-    # ---------------- FIRST ---------------- #
+    
 
     def compute_first(self):
         changed = True
@@ -49,10 +47,8 @@ class FirstFollow:
 
         return self.first
 
-    # ---------------- FOLLOW ---------------- #
-
     def compute_follow(self):
-        # Add $ to start symbol
+    
         self.follow[self.grammar.start_symbol].add('$')
 
         changed = True

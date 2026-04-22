@@ -118,9 +118,9 @@ class LR0:
                             if terminal in action[i] and action[i][terminal] != f"r{prod_index}":
                                 conflicts.append({
                                     "state": i,
-                                    "symbol": symbol,
-                                    "existing": action[i][symbol],
-                                    "incoming": f"s{j}"
+                                    "symbol": terminal,
+                                    "existing": action[i][terminal],
+                                    "incoming": f"r{prod_index}"
                                 })
                             action[i][terminal] = f"r{prod_index}"
 

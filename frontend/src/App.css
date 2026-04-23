@@ -289,3 +289,14 @@ tbody tr:nth-child(even) {
     flex-direction: column;
   }
 }
+
+.lookahead-tag {
+  color: #eb5757; /* A soft red/orange */
+  font-weight: bold;
+  margin-left: 8px;
+  font-family: monospace;
+}
+
+.production {
+  font-family: 'Courier New', Courier, monospace;
+}

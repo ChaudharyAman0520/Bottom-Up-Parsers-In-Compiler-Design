@@ -14,10 +14,33 @@ function App() {
   const [parseSteps, setParseSteps] = useState([]);
   const [conflicts, setConflicts] = useState([]);
   const [parseResult, setParseResult] = useState("");
-  const [parserType, setParserType] = useState("lr0"); // "lr0" or "slr1"
+  const [parserType, setParserType] = useState("lr0"); 
+  const [validationMsg, setValidationMsg] = useState({ text: "", type: "" });
+
+  const handleValidate = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/validate-grammar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ grammar }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setValidationMsg({ text: "✅ Grammar is valid!", type: "success" });
+      } else {
+        setValidationMsg({ text: `❌ Error: ${data.error}`, type: "error" });
+      }
+    } catch (err) {
+      setValidationMsg({ text: "❌ Connection to backend failed", type: "error" });
+    }
+  };
 
   const handleParseGrammar = async () => {
     try {
+      // Clear previous states
+      setParseSteps([]);
+      setParseResult("");
+      
       const [statesRes, tableRes] = await Promise.all([
         fetch(`${BASE_URL}/${parserType}-states`, {
           method: "POST",
@@ -65,14 +88,14 @@ function App() {
       console.error(err);
     }
   };
+
   return (
     <div className="app-shell">
       <div className="app-container">
         <header className="app-header">
           <h1 className="title">Bottom-Up Parser Visualizer</h1>
           <p className="subtitle">
-            Explore LR(0) and SLR(1) states, parsing tables, and step-by-step
-            parsing.
+            Explore LR(0), SLR(1), CLR(1), and LALR(1) states and parsing logic.
           </p>
         </header>
 
@@ -80,48 +103,50 @@ function App() {
           <div className="panel-header">
             <h2 className="section-title">Grammar Workspace</h2>
             <div className="parser-toggle">
-              <button
-                onClick={() => setParserType("lr0")}
-                className={parserType === "lr0" ? "active-btn" : ""}
-              >
-                LR(0)
-              </button>
-              <button
-                onClick={() => setParserType("slr1")}
-                className={parserType === "slr1" ? "active-btn" : ""}
-              >
-                SLR(1)
-              </button>
+              {["lr0", "slr1", "clr1", "lalr1"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setParserType(type)}
+                  className={parserType === type ? "active-btn" : ""}
+                >
+                  {type.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
 
           <textarea
             rows={7}
             value={grammar}
-            onChange={(e) => setGrammar(e.target.value)}
-            placeholder={`Enter grammar
-
-Example:
-S -> L = R | R
-L -> * R | id
-R -> L`}
+            onChange={(e) => {
+              setGrammar(e.target.value);
+              setValidationMsg({ text: "", type: "" });
+            }}
+            placeholder={`Enter grammar...`}
           />
 
+          {validationMsg.text && (
+            <div className={`validation-banner ${validationMsg.type}`}>
+              {validationMsg.text}
+            </div>
+          )}
+
           <div className="action-row">
+            <button className="secondary-btn" onClick={handleValidate}>
+              Validate Grammar
+            </button>
             <button className="primary-btn" onClick={handleParseGrammar}>
-              Process Grammar
+              Generate Tables
             </button>
           </div>
         </section>
 
         <GrammarDisplay grammar={grammar} />
 
-        {/* STATES + TABLE */}
         <section className="flex-container">
           <div className="box">
             <StatesView states={states} />
           </div>
-
           <div className="box">
             <ParsingTable
               action={action}
@@ -132,7 +157,7 @@ R -> L`}
           </div>
         </section>
 
-        {/* INPUT */}
+        {/* Parsing logic for input string remains same */}
         <section className="card parse-input-card">
           <h2 className="section-title">Parse Input String</h2>
           <div className="input-row">
@@ -147,10 +172,10 @@ R -> L`}
           </div>
         </section>
 
-        {/* STEPS */}
+        {/* STEPS TABLE */}
         {parseSteps.length > 0 && (
           <div className="card">
-            <h3 className="section-title">Parsing Steps</h3>
+            <h3 className="section-title">Parsing Steps ({parserType.toUpperCase()})</h3>
             <div className="table-container">
               <table>
                 <thead>

@@ -18,7 +18,20 @@ function StatesView({ states }) {
 
                 return (
                   <div key={idx} className="state-item">
-                    {item.left} → {formatItem(item)}
+                    <span className="production">
+                      {item.left} → {formatItem(item)}
+                    </span>
+                    
+                    {/* SAFE LOOKAHEAD RENDERING */}
+                    {item.lookahead && (
+                      <span className="lookahead-tag">
+                        {" [ "}
+                        {Array.isArray(item.lookahead) 
+                          ? item.lookahead.join(" / ") 
+                          : item.lookahead}
+                        {" ]"}
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -32,16 +45,9 @@ function StatesView({ states }) {
 
 function formatItem(item) {
   const { right, dot } = item;
-
-  let output = [];
-
-  for (let i = 0; i < right.length; i++) {
-    if (i === dot) output.push("•");
-    output.push(right[i]);
-  }
-
-  if (dot === right.length) output.push("•");
-
+  let output = [...right];
+  // Insert the dot at the correct position
+  output.splice(dot, 0, "•");
   return output.join(" ");
 }
 

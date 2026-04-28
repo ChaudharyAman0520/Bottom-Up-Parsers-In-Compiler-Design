@@ -1,6 +1,6 @@
 
-from .first_follow.first_follow import FirstFollow
-from .lr0 import LR0
+from first_follow.first_follow import FirstFollow
+from lr0 import LR0
 
 class SLR1(LR0):
     def __init__(self, grammar):

@@ -1,4 +1,3 @@
-
 class Grammar:
     def __init__(self, grammar_text: str):
         self.productions = {}          # {NonTerminal: [[symbols], ...]}
@@ -18,14 +17,12 @@ class Grammar:
             if line.strip()
         ]
 
-        # Collect non-terminals first
         for line in lines:
             if "->" not in line:
                 raise ValueError(f"Invalid production format: {line}")
             left, _ = line.split("->", 1)
             self.non_terminals.add(left.strip())
 
-        # Parse productions
         for index, line in enumerate(lines):
             left, right = line.split("->", 1)
             left = left.strip()
@@ -58,6 +55,5 @@ class Grammar:
         self.non_terminals.add(augmented_start)
         self.start_symbol = augmented_start
 
-        # rebuild production list after augmentation
         self.production_list = []
         self._build_production_list()

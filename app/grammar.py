@@ -33,8 +33,10 @@ class Grammar:
             left = left.strip()
 
             # LHS validation
-            if len(left.split()) != 1 or not left.isupper() or len(left) != 1:
-                errors.append(f"Line {i+1}: LHS must be a single uppercase letter")
+            if len(left.split()) != 1:
+                errors.append(f"Line {i+1}: LHS must be a single non-terminal (no spaces)")
+            elif not left[0].isalpha():
+                errors.append(f"Line {i+1}: LHS non-terminal must start with a letter")
 
             defined_nt.add(left)
 
@@ -48,7 +50,7 @@ class Grammar:
                 alt = alt.strip()
 
                 if alt == "":
-                    errors.append(f"Line {i+1}: Empty production (use ε)")
+                    errors.append(f"Line {i+1}: Empty production (use ε or epsilon)")
                     continue
 
                 symbols = alt.split()
@@ -59,20 +61,14 @@ class Grammar:
                     if sym == "->":
                         errors.append(f"Line {i+1}: Invalid '->' in RHS")
 
-                    if sym == "ε":
+                    if sym in ["ε", "epsilon"] or sym.lower() == "epsilon":
                         if len(symbols) > 1:
-                            errors.append(f"Line {i+1}: ε must be alone")
+                            errors.append(f"Line {i+1}: ε must be alone in a production")
                         continue
 
-                    if not sym.isalnum() and sym not in ['+', '-', '*', '/', '(', ')', '=']:
-                        errors.append(f"Line {i+1}: Invalid symbol '{sym}'")
-
-                    if sym.isupper() and len(sym) != 1:
-                        errors.append(f"Line {i+1}: Invalid non-terminal '{sym}'")
-
-        # Undefined non-terminals
+        # Undefined non-terminals (assuming anything starting with uppercase is a non-terminal)
         for sym in used_symbols:
-            if sym.isupper() and sym not in defined_nt:
+            if sym and sym[0].isupper() and sym not in defined_nt:
                 errors.append(f"Undefined non-terminal: {sym}")
 
         return errors, warnings
@@ -93,13 +89,22 @@ class Grammar:
 
             for alt in right.split("|"):
                 symbols = alt.strip().split()
-                self.productions[left].append(symbols if symbols else [])
+                # Standardize epsilon representations
+                symbols = ['ε' if s.lower() == 'epsilon' or s == 'ε' else s for s in symbols]
+                
+                # If the production is just epsilon, represent it as an empty list
+                if symbols == ['ε']:
+                    symbols = []
+                elif 'ε' in symbols:
+                    symbols = [s for s in symbols if s != 'ε']
+                
+                self.productions[left].append(symbols)
 
     def _extract_terminals(self):
         for left in self.productions:
             for prod in self.productions[left]:
                 for sym in prod:
-                    if sym not in self.non_terminals:
+                    if sym not in self.non_terminals and sym != 'ε':
                         self.terminals.add(sym)
 
     def _build_production_list(self):
@@ -109,7 +114,13 @@ class Grammar:
                 self.production_list.append((left, prod))
 
     def augment_grammar(self):
+        if not self.start_symbol:
+            return
+        # Ensure augmented start symbol is unique
         new_start = self.start_symbol + "'"
+        while new_start in self.non_terminals:
+            new_start += "'"
+            
         self.productions[new_start] = [[self.start_symbol]]
         self.non_terminals.add(new_start)
         self.start_symbol = new_start

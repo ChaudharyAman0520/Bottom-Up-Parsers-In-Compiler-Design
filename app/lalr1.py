@@ -67,19 +67,15 @@ class LALR1:
             self.transitions[i] = {}
 
             for sym in symbols:
-                moved = set()
-
-                for (l, r, d, la) in state:
-                    if d < len(r) and r[d] == sym:
-                        moved.add((l, r, d + 1))
-
-                if not moved:
+                target_state = clr.goto(state, sym)
+                if not target_state:
                     continue
-
-                target_core = frozenset(moved)
+                
+                target_core = self.get_core(target_state)
 
                 if target_core in core_to_index:
                     self.transitions[i][sym] = core_to_index[target_core]
+
 
     # ---------------- PROD INDEX ---------------- #
     def find_production_index(self, left, right):
@@ -109,7 +105,12 @@ class LALR1:
 
                         if sym in self.grammar.terminals:
                             if sym in action[i] and action[i][sym] != f"s{j}":
-                                conflicts.append((i, sym))
+                                conflicts.append({
+                                    "state": i,
+                                    "symbol": sym,
+                                    "existing": action[i][sym],
+                                    "incoming": f"s{j}"
+                                })
                             action[i][sym] = f"s{j}"
                         else:
                             goto_table[i][sym] = j
@@ -125,7 +126,12 @@ class LALR1:
                             continue
 
                         if la in action[i] and action[i][la] != f"r{prod_index}":
-                            conflicts.append((i, la))
+                            conflicts.append({
+                                "state": i,
+                                "symbol": la,
+                                "existing": action[i][la],
+                                "incoming": f"r{prod_index}"
+                            })
 
                         action[i][la] = f"r{prod_index}"
 

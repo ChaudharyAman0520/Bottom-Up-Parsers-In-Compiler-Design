@@ -127,7 +127,12 @@ class CLR1(LR0):
 
                         if symbol in self.grammar.terminals:
                             if symbol in action[state_index] and action[state_index][symbol] != f"s{target}":
-                                conflicts.append((state_index, symbol))
+                                conflicts.append({
+                                    "state": state_index,
+                                    "symbol": symbol,
+                                    "existing": action[state_index][symbol],
+                                    "incoming": f"s{target}"
+                                })
                             action[state_index][symbol] = f"s{target}"
                         else:
                             goto_table[state_index][symbol] = target
@@ -144,7 +149,12 @@ class CLR1(LR0):
                         continue  # safe skip
 
                     if lookahead in action[state_index] and action[state_index][lookahead] != f"r{prod_index}":
-                        conflicts.append((state_index, lookahead))
+                        conflicts.append({
+                            "state": state_index,
+                            "symbol": lookahead,
+                            "existing": action[state_index][lookahead],
+                            "incoming": f"r{prod_index}"
+                        })
 
                     action[state_index][lookahead] = f"r{prod_index}"
 

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from .clr1 import CLR1
+from clr1 import CLR1
 
 
 class LALR1:

@@ -1,4 +1,4 @@
-from .lr0 import LR0
+from lr0 import LR0
 
 class CLR1(LR0):
     def __init__(self, grammar, first_follow):

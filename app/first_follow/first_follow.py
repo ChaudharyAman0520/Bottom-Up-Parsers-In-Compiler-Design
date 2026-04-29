@@ -19,6 +19,9 @@ class FirstFollow:
 
                     for symbol in production:
 
+                        if symbol == 'ε':
+                            continue
+
                         # terminal
                         if symbol in self.grammar.terminals:
                             if symbol not in self.first[left]:
@@ -28,7 +31,7 @@ class FirstFollow:
                             break
 
                         # non-terminal
-                        else:
+                        elif symbol in self.grammar.non_terminals:
                             before = len(self.first[left])
 
                             self.first[left].update(self.first[symbol] - {'ε'})
@@ -39,6 +42,10 @@ class FirstFollow:
                             if 'ε' not in self.first[symbol]:
                                 add_epsilon = False
                                 break
+                        else:
+                            # Should not happen if grammar is valid, but safe fallback
+                            add_epsilon = False
+                            break
 
                     if add_epsilon:
                         if 'ε' not in self.first[left]:
@@ -70,15 +77,21 @@ class FirstFollow:
                             for j in range(i + 1, len(production)):
                                 next_sym = production[j]
 
+                                if next_sym == 'ε':
+                                    continue
+
                                 if next_sym in self.grammar.terminals:
                                     beta_first.add(next_sym)
                                     add_follow_later = False
                                     break
-                                else:  # non-terminal
+                                elif next_sym in self.grammar.non_terminals:
                                     beta_first.update(self.first[next_sym] - {'ε'})
                                     if 'ε' not in self.first[next_sym]:
                                         add_follow_later = False
                                         break
+                                else:
+                                    add_follow_later = False
+                                    break
 
                             # Add FIRST(β) - {ε} to FOLLOW(symbol)
                             before = len(self.follow[symbol])

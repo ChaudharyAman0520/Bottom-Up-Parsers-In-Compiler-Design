@@ -15,7 +15,7 @@ function App() {
   const [conflicts, setConflicts] = useState([]);
   const [parseResult, setParseResult] = useState("");
   const [parserType, setParserType] = useState("lr0"); 
-  const [validationMsg, setValidationMsg] = useState({ text: "", type: "" });
+  const [validationMsg, setValidationMsg] = useState({ text: "", type: "", errors: [], warnings: [] });
 
   const handleValidate = async () => {
     try {
@@ -26,9 +26,14 @@ function App() {
       });
       const data = await res.json();
       if (data.valid) {
-        setValidationMsg({ text: "✅ Grammar is valid!", type: "success" });
+        setValidationMsg({ text: "✅ Grammar is valid!", type: "success", errors: [], warnings: [] });
       } else {
-        setValidationMsg({ text: `❌ Error: ${data.error}`, type: "error" });
+        setValidationMsg({
+          text: "",
+          type: "error",
+          errors: data.errors || [],
+          warnings: data.warnings || [],
+        });
       }
     } catch (err) {
       setValidationMsg({ text: "❌ Connection to backend failed", type: "error" });
@@ -40,7 +45,7 @@ function App() {
       // Clear previous states
       setParseSteps([]);
       setParseResult("");
-      
+
       const [statesRes, tableRes] = await Promise.all([
         fetch(`${BASE_URL}/${parserType}-states`, {
           method: "POST",
@@ -55,13 +60,25 @@ function App() {
       ]);
 
       const statesData = await statesRes.json();
-      const tableData = await tableRes.json();
+      const tableData  = await tableRes.json();
+
+      // Backend returns validation errors when grammar is invalid
+      if (!statesData.valid && statesData.errors?.length > 0) {
+        const errorList = statesData.errors;
+        setValidationMsg({ text: "", type: "error", errors: errorList, warnings: [] });
+        setStates([]);
+        setAction({});
+        setGotoTable({});
+        setConflicts([]);
+        return;
+      }
 
       setStates(statesData.states || []);
       setAction(tableData.action || {});
       setGotoTable(tableData.goto || {});
       setConflicts(tableData.conflicts || []);
     } catch (err) {
+      setValidationMsg({ text: "❌ Connection to backend failed", type: "error" });
       console.error(err);
     }
   };
@@ -125,9 +142,15 @@ function App() {
             placeholder={`Enter grammar...`}
           />
 
-          {validationMsg.text && (
+          {(validationMsg.text || validationMsg.errors?.length > 0 || validationMsg.warnings?.length > 0) && (
             <div className={`validation-banner ${validationMsg.type}`}>
-              {validationMsg.text}
+              {validationMsg.text && <div>{validationMsg.text}</div>}
+              {validationMsg.errors?.map((e, i) => (
+                <div key={i} style={{ fontSize: "0.85rem", marginTop: "4px" }}>❌ {e}</div>
+              ))}
+              {validationMsg.warnings?.map((w, i) => (
+                <div key={i} style={{ fontSize: "0.85rem", marginTop: "4px", color: "#f5c518" }}>⚠️ {w}</div>
+              ))}
             </div>
           )}
 

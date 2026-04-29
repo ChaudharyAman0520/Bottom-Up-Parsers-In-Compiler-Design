@@ -26,15 +26,29 @@ class ParseInput(BaseModel):
     input_string: str
 
 
-# 🔥 COMMON VALIDATION FUNCTION
+def _run_validation_only(grammar_text: str):
+    """Returns (errors, warnings) without constructing a full Grammar."""
+    shell = Grammar.__new__(Grammar)
+    shell.raw_text = grammar_text
+    return shell.validate_cfg()
+
+
 def validate_and_continue(grammar_text):
-    g = Grammar(grammar_text)
-    errors, warnings = g.validate_cfg()
+    errors, warnings = _run_validation_only(grammar_text)
 
     if errors:
         return None, {
             "valid": False,
             "errors": errors,
+            "warnings": warnings
+        }
+
+    try:
+        g = Grammar(grammar_text)
+    except Exception as e:
+        return None, {
+            "valid": False,
+            "errors": [f"Internal parse error: {e}"],
             "warnings": warnings
         }
 
@@ -48,9 +62,7 @@ def root():
 
 @app.post("/validate-grammar")
 def validate_grammar(data: GrammarInput):
-    g = Grammar(data.grammar)
-    errors, warnings = g.validate_cfg()
-
+    errors, warnings = _run_validation_only(data.grammar)
     return {
         "valid": len(errors) == 0,
         "errors": errors,
